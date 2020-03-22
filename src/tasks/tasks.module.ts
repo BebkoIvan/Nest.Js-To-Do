@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TasksController } from './controllers/tasks.controller';
 import { TasksService } from './services/tasks.service';
-import { DatabaseModule } from 'src/database/database.module';
+import { MongooseModule } from '@nestjs/mongoose';
 import { TaskSchema } from './models/schemas/task.schema';
 
 @Module({

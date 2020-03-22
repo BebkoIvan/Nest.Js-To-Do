@@ -1,19 +1,20 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { TaskStatus, Task } from '../models/task.model';
 import { CreateTaskDto } from '../DTO/create-task.dto';
-import { Model } from 'mongoose';
+import { Model, isValidObjectId } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
 export class TasksService {
 
-    tasks = [];
+    constructor(@InjectModel('Task') private readonly taskModel: Model<any>) {}
 
-    getAllTasks(): Task[] {
-        return this.tasks;
+    getAllTasks() {
+        return this.taskModel.find();
     }
 
-    getTaskById(id: string): Task {
-        return this.tasks.find(task => task.id === id);
+    async getTaskById(id: string): Promise<any> {
+        return this.taskModel.findById(id);
     }
 
     async createTask(createTaskDto: CreateTaskDto): Promise<any> {
@@ -23,21 +24,14 @@ export class TasksService {
             description,
             status: TaskStatus.OPEN
         });
-
-        console.log(task);
         return task.save();
     }
 
-    deleteTask(id: string) {
-        this.tasks = this.tasks.filter(task => task.id !== id);
+    async deleteTask(id: string): Promise<any> {
+        return this.taskModel.findByIdAndDelete(id);
     }
 
-    updateTaskStatus(id: string, status: TaskStatus) {
-        const task = this.tasks.find(task => task.id === id);
-        if (!task) return 'There is no such task!';
-        else {
-            task.status = status;
-            return task;
-        }
+    async updateTaskStatus(id: string, status: TaskStatus):Promise<any> {
+        return this.taskModel.findByIdAndUpdate(id, {status: status}, {new: true});
     }
 }
